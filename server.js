@@ -4,9 +4,6 @@ if (process.env.NODE_ENV !== 'production') {
 //library for loading the things we need
 const express = require('express');
 const app = express();
-
-const bodyParser = require('body-parser');
-
 //library for hashing our users passwords (also compares hashed passwords to make sure our app is secure)
 const bcrypt = require('bcrypt');
 //libraries needed to know to use passport
@@ -22,16 +19,25 @@ initializePassport(
     email => users.find(user => user.email === email),
     id => users.find(user => user.id === id)
 );
+//library for cors middleware that lets us enable CORS
+const cors = require('cors');
+
+
 
 //local variable instead of connecting to database (need to change this when using database of users)
 const users = [];
+//cors
+var corsOptions = {
+    origin: "http://localhost:8080"
+};
 
 //set the view engine to ejs
 app.set('view engine', 'ejs');
 
+//use cors
+app.use(cors(corsOptions));
 //take forms from "email and password" and access them in our variable in our post method
 app.use(express.urlencoded({ extended: false }));
-
 //use flash
 app.use(flash());
 //use session
@@ -44,11 +50,16 @@ app.use(session({
 app.use(passport.initialize())
 //store variables to be persisted across entire session our user has
 app.use(passport.session())
-
+//logging out
 app.use(methodOverride('_method'))
 
 //use res.render to load up an ejs view file
 
+//for database
+const db = require("./app/models");
+db.sequelize.sync({ force: true }).then(() => {
+    console.log("Drop and re-sync db.");
+  });
 
 // index page
 app.get('/', checkAuthenticated, function(req, res) {
@@ -81,7 +92,6 @@ app.post('/login', checkNotAuthenticated, passport.authenticate('local', {
 app.get('/register', checkNotAuthenticated, (req, res) => {
     res.render('pages/register')
 });
-
 app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
         //creates a safe password
@@ -130,5 +140,9 @@ function checkNotAuthenticated(req, res, next) {
     next()
 }
 
+
+require("./app/routes/tutorial.routes")(app);
+
+const PORT = process.env.PORT || 8080;
 app.listen(8080);
-console.log('8080 is the magic port');
+console.log(`Server is running on port ${PORT}.`);
