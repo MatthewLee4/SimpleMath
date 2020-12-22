@@ -2,6 +2,7 @@ const db = require("../models");
 const User = db.users;
 const Op = db.Sequelize.Op;
 const bcrypt = require('bcrypt');
+const { initialize } = require("passport");
 //REGISTER
 exports.create = async (req, res) => {
     // Validate request
@@ -50,21 +51,17 @@ exports.findAll = (req, res) => {
   };
 
 // LOGIN Find a single User with an email/password
-exports.findOne = (req, res) => {
-    
+exports.findOne = async (req, res) => {
+    const comparePassword = await bcrypt.compare(password, user.password)
     // Create a User
     const userObject = {
       name: req.body.name,
       email: req.body.email,
-      password: req.body.password
+      password: comparePassword
     };
   
-  
-    User.findOne({ where: {email:userObject.email} })
-   
-    
+    User.findOne({ where: { email:userObject.email, password:userObject.password} })
       .then(data => {
-        console.log(bcrypt.compare(userObject.password, User.password))
         res.send(data);
       })
       .catch(err => {

@@ -94,19 +94,6 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
         email: req.body.email,
         password: hashedPassword
     }
-    //     users.push({
-    //         //this creates a unique id, don't need if have database (which auto generates id)
-    //         id: Date.now().toString(),
-    //         name: req.body.name,
-    //         email:req.body.email,
-    //         password: hashedPassword
-    //     });
-    //     res.redirect('/login')
-    // } catch {
-    //     res.redirect('/register')
-    // }
-    // //to see if user has created account (will reset since this info is not saved into a database)
-    // console.log(users);
     axios.post('http://localhost:8080/api/users/register', userObject)
       .then(function (response) {
         if (response.data.email) {
@@ -151,7 +138,7 @@ function checkNotAuthenticated(req, res, next) {
 
 
 require("./app/routes/tutorial.routes")(app);
-require("./app/routes/users.routes")(app);
+require("./app/routes/users.routes")(app, passport);
 
 const PORT = process.env.PORT || 8080;
 app.listen(8080);

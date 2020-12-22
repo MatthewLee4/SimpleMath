@@ -124,3 +124,6 @@ var quiz = new Quiz(questions);
 document.addEventListener('DOMContentLoaded', () => {
     populate();
 });
+
+
+<p id="progress">Question x of y.</p>
