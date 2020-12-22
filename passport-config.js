@@ -1,5 +1,7 @@
 //to use local version of password
 const LocalStrategy = require('passport-local').Strategy
+//load up the user model
+const User = require('../SimpleMath/app/models/users.model')
 //make sure the password is the same as the password we need
 const bcrypt = require('bcrypt');
 
@@ -7,6 +9,7 @@ function initialize(passport, getUserByEmail, getUserById) {
     const authenticateUser = async (email, password, done) => {
         //return user by email or return null if the email does not exist
         const user = getUserByEmail(email)
+        console.log(user);
         if (user == null) { //if we can't find our user
             return done(null, false, { message: 'No user with that email' }) 
                             //"null" - we don't have an error, since that is on the server

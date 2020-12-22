@@ -21,6 +21,7 @@ initializePassport(
 );
 //library for cors middleware that lets us enable CORS
 const cors = require('cors');
+const axios = require('axios');
 
 
 
@@ -53,27 +54,19 @@ app.use(passport.session())
 //logging out
 app.use(methodOverride('_method'))
 
+app.use(express.static('public'))
+app.use(express.json());
 //use res.render to load up an ejs view file
 
-//for database
+//for calling database
 const db = require("./app/models");
-db.sequelize.sync({ force: true }).then(() => {
-    console.log("Drop and re-sync db.");
+db.sequelize.sync().then(() => {
+    console.log("Re-sync db.");
   });
 
 // index page
 app.get('/', checkAuthenticated, function(req, res) {
-    var mascots = [
-        { name: 'Sammy', organization: "DigitalOcean", birth_year: 2012},
-        { name: 'Tux', organization: "Linux", birth_year: 1996},
-        { name: 'Moby Dock', organization: "Docker", birth_year: 2013}
-    ];
-    var tagline = "No programming concept is complete without a cute animal mascot.";
-
-    res.render('pages/index', {
-        mascots: mascots,
-        tagline: tagline
-    });
+    res.render('pages/index');
 });
 
 
@@ -93,22 +86,25 @@ app.get('/register', checkNotAuthenticated, (req, res) => {
     res.render('pages/register')
 });
 app.post('/register', checkNotAuthenticated, async (req, res) => {
-    try {
-        //creates a safe password
-        const hashedPassword = await bcrypt.hash(req.body.password, 10)
-        users.push({
-            //this creates a unique id, don't need if have database (which auto generates id)
-            id: Date.now().toString(),
-            name: req.body.name,
-            email:req.body.email,
-            password: hashedPassword
-        });
-        res.redirect('/login')
-    } catch {
-        res.redirect('/register')
+    // try {
+    //     //creates a safe password
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    const userObject = {
+        name: req.body.name,
+        email: req.body.email,
+        password: hashedPassword
     }
-    //to see if user has created account (will reset since this info is not saved into a database)
-    console.log(users);
+    axios.post('http://localhost:8080/api/users/register', userObject)
+      .then(function (response) {
+        if (response.data.email) {
+            res.redirect('/login')
+        } else {
+            res.redirect('/register')
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
 });
 
 
@@ -142,6 +138,7 @@ function checkNotAuthenticated(req, res, next) {
 
 
 require("./app/routes/tutorial.routes")(app);
+require("./app/routes/users.routes")(app, passport);
 
 const PORT = process.env.PORT || 8080;
 app.listen(8080);
