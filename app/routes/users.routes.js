@@ -18,8 +18,8 @@ module.exports = app => {
     // Update a User with id
     router.put("/:id", users.update);
   
-    // Delete a User with id
-    router.delete("/:id", users.delete);
+    // Logout
+    router.delete("/logout", users.delete);
   
     // Create a new User
     router.delete("/", users.deleteAll);

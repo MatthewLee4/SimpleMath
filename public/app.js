@@ -71,7 +71,7 @@ function populate() {
     else {
         //show question
         var element = document.getElementById("question");
-        element.innerHTML = quiz.getQuestionIndex().text;
+        if (element) {element.innerHTML = quiz.getQuestionIndex().text;
 
         //show choices
         var choices = quiz.getQuestionIndex().choices;
@@ -82,7 +82,7 @@ function populate() {
         }
 
         //show progress
-        showProgress();
+        showProgress();}
     }
 };
 
@@ -126,4 +126,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-<p id="progress">Question x of y.</p>
