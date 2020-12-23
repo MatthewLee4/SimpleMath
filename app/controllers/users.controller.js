@@ -12,12 +12,13 @@ exports.create = async (req, res) => {
       });
       return;
     }
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    // console.log(req.body.password)
+    // const hashedPassword = await bcrypt.hash(req.body.password, 10)
     // Create a User
     const user = {
       name: req.body.name,
       email: req.body.email,
-      password: hashedPassword
+      password: req.body.password
     };
   
     // Save User in the database
@@ -52,23 +53,40 @@ exports.findAll = (req, res) => {
 
 // LOGIN Find a single User with an email/password
 exports.findOne = async (req, res) => {
-    const comparePassword = await bcrypt.compare(password, user.password)
-    // Create a User
-    const userObject = {
-      name: req.body.name,
-      email: req.body.email,
-      password: comparePassword
-    };
+  // console.log(req)
+  // console.log(req.email)
+  console.log(req.password)
+  let user = User.findOne({ where: {email: req.email}})
+  .then( async user => {
+    if (!user) {
+      return null;
+    } else {
+      console.log(user.password);
+      const comparePassword = await bcrypt.compare(req.password, user.password)
+      console.log(comparePassword);
+      if (comparePassword == true) {
+        return user
+      }
+    }
+  })  
+return user
+  // const comparePassword = await bcrypt.compare(req.body.password, user.password)
+    // // Create a User
+    // const userObject = {
+    //   name: req.body.name,
+    //   email: req.body.email,
+    //   password: comparePassword
+    // };
   
-    User.findOne({ where: { email:userObject.email, password:userObject.password} })
-      .then(data => {
-        res.send(data);
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: err
-        });
-      });
+    // User.findOne({ where: { email:userObject.email, password:userObject.password} })
+    //   .then(data => {
+    //     res.send(data);
+    //   })
+    //   .catch(err => {
+    //     res.status(500).send({
+    //       message: err
+    //     });
+    //   });
   };
 
 // Update a User by the id in the request
