@@ -140,6 +140,8 @@ function checkNotAuthenticated(req, res, next) {
 require("./app/routes/tutorial.routes")(app);
 require("./app/routes/users.routes")(app, passport);
 
-const PORT = process.env.PORT || 8080;
-app.listen(8080);
-console.log(`Server is running on port ${PORT}.`);
+const port = process.env.PORT || 8080;
+app.listen(port, function() {
+    console.log(`Server is running on port ${PORT}.`);
+});
+
