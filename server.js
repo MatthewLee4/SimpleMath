@@ -23,23 +23,6 @@ initializePassport(
 const cors = require('cors');
 const axios = require('axios');
 
-//for heroku app connecting to posgres database
-const { Client } = require('pg');
-const client = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
-client.connect();
-client.query('SELECT table_schema,table_name FROM information_schema.tables;', (err, res) => {
-  if (err) throw err;
-  for (let row of res.rows) {
-    console.log(JSON.stringify(row));
-  }
-  client.end();
-});
-
 //local variable instead of connecting to database (need to change this when using database of users)
 const users = [];
 //cors
